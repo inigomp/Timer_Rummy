@@ -1,484 +1,357 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temporizador Rummy</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Temporizador Rummy — Responsive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #a593e0;
-      --secondary: #6bbba1;
-      --bg: #f7f7fb;
-      --surface: #f0eef6;
-      --accent: #f5e8c7;
-      --text: #36354a;
-      --text-dim: #8c8fa3;
-      --danger: #e57373;
-      --shadow: 0 8px 32px 0 rgba(123, 118, 191, 0.10);
-      --radius: 18px;
-      --white: #fff;
-      --timer-bg: #fff;
-      --timer-text: #312e4e;
-      --timer-shadow: 0 4px 24px 0 rgba(49,46,78,0.09);
-      --modal-bg: rgba(54, 53, 74, 0.25);
+    :root{
+      --primary:#7c63e6;
+      --secondary:#5fc3a6;
+      --bg-a: #f6f5ff;
+      --bg-b: #f1fbf7;
+      --card: rgba(255,255,255,0.9);
+      --muted:#8c8fa3;
+      --danger:#ef6b6b;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 12px 30px rgba(54,53,74,0.10);
+      --radius:16px;
+      --gap:12px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
     }
-    html, body {
-      padding: 0;
-      margin: 0;
-      font-family: 'Inter', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      width: 100vw;
+
+    /* Base layout - no scroll anywhere */
+    html,body{
+      height:100%;
+      width:100%;
+      margin:0;
+      padding:0;
+      font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(160deg,var(--bg-a), var(--bg-b));
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color: #22212a;
+    }
+    body{
+      min-height:100dvh;
+      height:100dvh;
+      width:100vw;
+      overflow:hidden;
+      box-sizing:border-box;
+      -webkit-user-select:none;
+      -ms-touch-action:manipulation;
+      touch-action:manipulation;
+    }
+
+    /* Fullscreen panels */
+    section.panel {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: calc(18px + var(--safe-top)) 14px calc(18px + var(--safe-bottom));
       box-sizing: border-box;
     }
-    body {
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    h1 {
-      font-size: 2.5em;
-      font-weight: 900;
-      margin-bottom: 26px;
-      letter-spacing: -2px;
-      text-align: center;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-fill-color: transparent;
-      text-shadow: 0 2px 32px rgba(123,118,191,0.07);
-      transition: color 0.2s;
-      width: 100%;
-    }
+    section.panel.active { display:flex; }
+
+    /* Card container */
     .card {
-      background: var(--surface);
+      width: min(96vw,460px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.82));
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 36px 30px 32px 30px;
-      min-width: 320px;
-      width: 96vw;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
+      padding: clamp(12px,4vw,28px);
+      display:flex;
+      flex-direction:column;
+      gap: var(--gap);
       align-items: center;
-      gap: 14px;
-      margin: 12px auto;
-      position: relative;
+      box-sizing:border-box;
+      max-height: calc(100dvh - 3rem);
     }
+
+    /* Header */
+    .title {
+      width:100%;
+      text-align:center;
+      font-weight:900;
+      letter-spacing:-0.02em;
+      font-size: clamp(1.1rem, 6.6vw, 1.9rem);
+      line-height:1;
+      margin:0;
+      color: transparent;
+      background: linear-gradient(90deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .subtitle {
+      margin:0;
+      color:var(--muted);
+      font-weight:600;
+      font-size:clamp(0.86rem,3.6vw,1rem);
+      text-align:center;
+    }
+
+    /* Players input */
     .player-inputs {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 18px;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
     .player-inputs input {
-      padding: 12px;
+      width:100%;
+      box-sizing:border-box;
+      padding: clamp(8px, 2.8vw, 12px);
       border-radius: 10px;
-      border: 1.5px solid var(--primary);
-      font-size: 1.08em;
-      background: var(--white);
-      color: var(--text);
-      outline: none;
-      transition: border 0.2s, background 0.17s;
-      text-align: center;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      border: 1px solid rgba(124,99,238,0.18);
+      outline:none;
+      font-weight:700;
+      text-align:center;
+      font-size: clamp(0.95rem, 3.7vw, 1rem);
+      background: linear-gradient(180deg,#fff,#fbfbff);
     }
-    .player-inputs input:focus {
-      border: 2px solid var(--secondary);
-      background: #ede9f6;
-    }
+
+    /* Controls row */
     .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      width:100%;
+      display:flex;
+      gap:10px;
+      justify-content:center;
     }
-    .controls button {
-      background: var(--surface);
-      color: var(--primary);
-      border: 1.5px solid var(--primary);
-      border-radius: 8px;
-      padding: 7px 18px;
-      font-weight: 700;
-      font-size: 1em;
-      letter-spacing: 0.2px;
-      transition: background 0.2s, color 0.2s, border 0.2s, transform 0.1s;
-      cursor: pointer;
+    .controls button{
+      flex:1;
+      min-width:0;
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      background: linear-gradient(90deg, rgba(124,99,238,0.12), rgba(95,195,166,0.06));
+      color:var(--primary);
+      font-weight:800;
+      box-shadow: 0 6px 18px rgba(124,99,238,0.04);
+      cursor:pointer;
     }
-    .controls button:hover {
-      background: var(--primary);
-      color: var(--white);
-      border-color: var(--secondary);
-      transform: translateY(-2px) scale(1.05);
+
+    /* Settings row */
+    .settings {
+      width:100%;
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
     }
-    .time-settings {
-      margin: 10px 0 5px 0;
-      font-weight: 600;
-      color: var(--text-dim);
-      font-size: 1.02em;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
+    .settings .field {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-start;
+      font-weight:700;
+      color:var(--muted);
+      font-size:clamp(0.86rem,3.2vw,1rem);
     }
-    .time-settings input {
-      margin-left: 10px;
-      width: 62px;
-      text-align: center;
-      border-radius: 8px;
-      border: 1.2px solid var(--primary);
-      padding: 7px;
-      font-size: 1.03em;
-      background: var(--white);
-      color: var(--text);
-      font-weight: 700;
+    .settings input{
+      width:84px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(124,99,238,0.12);
+      text-align:center;
+      background:#fff;
+      font-weight:800;
     }
+
+    /* Primary start button */
     #startBtn {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      color: var(--white);
-      font-weight: 800;
-      font-size: 1.3em;
-      border-radius: 13px;
-      border: none;
-      padding: 15px 0;
-      width: 100%;
-      margin-top: 15px;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: background 0.17s, transform 0.14s;
-      box-shadow: 0 2px 8px rgba(127,90,240,0.06);
+      width:100%;
+      margin-top:6px;
+      padding: clamp(10px,3.5vw,14px);
+      border-radius:12px;
+      border:none;
+      color:white;
+      font-weight:900;
+      font-size: clamp(1rem,4vw,1.3rem);
+      background: linear-gradient(90deg,var(--primary),var(--secondary));
+      box-shadow: 0 10px 30px rgba(124,99,238,0.12);
+      cursor:pointer;
     }
-    #startBtn:hover {
-      background: linear-gradient(90deg, var(--secondary), var(--primary));
-      transform: scale(1.018);
-      color: var(--white);
-    }
-    #menu, #selectFirst, #game {
-      display: none;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-    }
-    #menu.active, #selectFirst.active, #game.active {
-      display: flex;
-      flex-direction: column;
-    }
-    #selectFirst {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 38px 30px 30px 30px;
-      margin-top: 20px;
-      min-width: 290px;
-      max-width: 350px;
-      animation: pop 0.55s cubic-bezier(.42,1.6,.46,.98);
-    }
-    @keyframes pop {
-      from { transform:scale(0.7) translateY(60px); opacity:0; }
-      to   { transform:scale(1)   translateY(0);    opacity:1; }
-    }
-    #selectFirst label {
-      font-size: 1.2em;
-      font-weight: 800;
-      margin-bottom: 18px;
-      color: var(--primary);
-      letter-spacing: 0.7px;
-      text-align: center;
-      width: 100%;
-      display: block;
-    }
-    .first-player-btns {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      margin-top: 5px;
-      width: 100%;
-      align-items: center;
-    }
+
+    /* Select-first card tweaks */
+    #selectFirst .card { align-items:stretch; gap:14px; }
+    .first-player-btns { display:flex; flex-direction:column; gap:12px; }
     .first-player-btns button {
-      background: linear-gradient(90deg, #ede9f6, #e3f2ef);
-      color: var(--text);
-      font-size: 1.15em;
-      padding: 15px 0;
-      border-radius: 10px;
-      border: 2px solid var(--primary);
-      font-weight: 700;
-      width: 100%;
-      box-shadow: 0 1px 8px rgba(127,90,240,0.05);
-      cursor: pointer;
-      letter-spacing: 0.2px;
-      transition: background 0.18s, color 0.18s, border 0.18s, transform 0.13s;
+      padding:12px;
+      border-radius:10px;
+      border:2px solid rgba(124,99,238,0.22);
+      background: linear-gradient(90deg,#f3f0ff,#effff7);
+      font-weight:800;
+      cursor:pointer;
     }
-    .first-player-btns button:hover, .first-player-btns button:focus {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      color: var(--white);
-      border-color: var(--secondary);
-      transform: translateY(-2px) scale(1.03);
+
+    /* Game UI */
+    .game-card { width: min(96vw,420px); display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .turn-row { width:100%; display:flex; gap:12px; align-items:center; justify-content:center; }
+    .avatar {
+      width:48px; height:48px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,var(--primary),var(--secondary));
+      color:white; font-weight:900; font-size:1.05rem;
+      box-shadow: 0 6px 18px rgba(124,99,238,0.12);
+      flex-shrink:0;
     }
-    .game-content {
-      width: 97vw;
-      max-width: 420px;
-      min-width: 310px;
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 38px 30px 32px 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      animation: pop 0.42s cubic-bezier(.42,1.6,.46,.98);
-      position: relative;
+    .turn-text {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      text-align:left;
     }
-    #turn {
-      font-size: 2.4em;
-      font-weight: 900;
-      margin-bottom: 6px;
-      letter-spacing: 1px;
-      color: var(--primary);
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-fill-color: transparent;
-      text-shadow: 0 2px 24px rgba(123,118,191,0.10);
-      transition: color 0.2s;
-      text-align: center;
-      padding: 9px 0;
-      border-radius: 12px;
-      background-size: 200% 200%;
-      animation: shineMove 4s linear infinite;
-    }
-    @keyframes shineMove {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
+    .turn-label { font-weight:700; font-size:clamp(0.86rem,3.2vw,1rem); color:var(--muted); }
+    .turn-name { font-weight:900; font-size:clamp(1.05rem,5.6vw,1.4rem); color:var(--primary); }
+
+    /* Timer */
     #timer {
-      display: inline-block;
-      font-size: 4.6em;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: var(--timer-text);
-      background: var(--timer-bg);
-      border-radius: 18px;
-      box-shadow: var(--timer-shadow);
-      padding: 28px 38px 25px 38px;
-      margin-bottom: 28px;
-      margin-top: 1px;
-      transition: color 0.15s, background 0.15s;
-      text-align: center;
-      width: auto;
-      min-width: 220px;
-      border: 2px solid #ece9f6;
-      outline: 3px solid #ece9f600;
-      outline-offset: 6px;
-      user-select: none;
-      font-variant-numeric: tabular-nums;
+      font-variant-numeric:tabular-nums;
+      font-weight:900;
+      font-size: clamp(1.8rem, 10vw, 3.6rem);
+      padding: clamp(10px, 3.8vw, 20px) clamp(16px,5vw,36px);
+      border-radius:12px;
+      background: linear-gradient(180deg,#fff,#fbfbff);
+      box-shadow: 0 10px 30px rgba(49,46,78,0.06);
+      color: #22212a;
+      text-align:center;
+      min-width:120px;
     }
-    .game-btns {
-      display: flex;
-      gap: 11px;
-      width: 100%;
-      justify-content: center;
-      margin-bottom: 15px;
+
+    .game-btns { width:100%; display:flex; gap:10px; }
+    .game-btns button {
+      flex:1; padding:12px; border-radius:10px; border:none; font-weight:800; cursor:pointer;
+      box-shadow: 0 6px 18px rgba(54,53,74,0.06);
     }
-    .game-btns button,
+    #endTurnBtn{ background: linear-gradient(90deg,var(--primary),var(--secondary)); color:white; }
+    #pauseBtn{ background: var(--card); color:var(--primary); border:1px solid rgba(95,195,166,0.12); }
+
     #endGameBtn {
-      color: var(--text);
-      font-weight: 700;
-      font-size: 1.18em;
-      border-radius: 10px;
-      border: none;
-      padding: 14px 0;
-      flex: 1 1 0;
-      transition: background 0.16s, color 0.13s, transform 0.13s;
-      box-shadow: 0 2px 8px rgba(127,90,240,0.05);
-      cursor: pointer;
-      letter-spacing: 0.7px;
-      background: linear-gradient(90deg, var(--primary) 50%, var(--secondary) 100%);
+      width:100%; padding:11px; border-radius:10px; border:none; background:var(--danger); color:white; font-weight:900;
     }
-    #endTurnBtn {
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      color: var(--white);
-    }
-    #endTurnBtn:hover {
-      background: linear-gradient(90deg, var(--secondary), var(--primary));
-      color: var(--white);
-    }
-    #pauseBtn {
-      background: var(--accent);
-      color: var(--text);
-      font-weight: 900;
-    }
-    #pauseBtn:hover {
-      background: var(--secondary);
-      color: var(--white);
-    }
-    #endGameBtn {
-      background: var(--danger);
-      color: var(--white);
-      margin-top: 20px;
-      width: 100%;
-      font-size: 1.11em;
-      font-weight: 800;
-      letter-spacing: 1.1px;
-    }
-    #endGameBtn:hover {
-      background: #cf6f6f;
-    }
-    /* Modal de confirmación */
+
+    /* Modal */
     .modal-bg {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100vh;
-      background: var(--modal-bg);
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
+      position: fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background: rgba(34,33,42,0.28); z-index:1200; padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+      box-sizing:border-box;
     }
-    .modal-bg.active {
-      display: flex;
-    }
+    .modal-bg.active { display:flex; }
     .modal {
-      background: var(--white);
-      color: var(--text);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px 0 rgba(54,53,74,0.13);
-      padding: 32px 28px 24px 28px;
-      min-width: 260px;
-      max-width: 90vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: pop 0.35s cubic-bezier(.42,1.6,.46,.98);
+      width: min(92vw,380px); background: white; border-radius:12px; padding:16px; box-shadow: 0 18px 50px rgba(34,33,42,0.14);
+      display:flex; flex-direction:column; gap:12px; align-items:center;
     }
-    .modal p {
-      font-size: 1.12em;
-      font-weight: 600;
-      margin-bottom: 32px;
-      text-align: center;
-      color: var(--text);
-    }
-    .modal-btns {
-      display: flex;
-      gap: 20px;
-      width: 100%;
-      justify-content: center;
-    }
-    .modal-btns button {
-      font-size: 1.04em;
-      font-weight: 700;
-      border-radius: 9px;
-      padding: 10px 18px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.15s, color 0.13s, transform 0.13s;
-    }
-    .modal-btns .confirm {
-      background: var(--danger);
-      color: var(--white);
-    }
-    .modal-btns .cancel {
-      background: var(--surface);
-      color: var(--text);
-      border: 1.5px solid var(--text-dim);
-    }
-    .modal-btns .cancel:hover {
-      background: var(--primary);
-      color: var(--white);
-      border-color: var(--primary);
-    }
-    .modal-btns .confirm:hover {
-      filter: brightness(1.1);
-      background: #cf6f6f;
-    }
-    @media (max-width: 500px) {
-      .card, .game-content, #selectFirst {
-        min-width: unset;
-        max-width: 99vw;
-        padding: 18vw 2vw 12vw 2vw;
-      }
-      h1 { font-size: 2em; }
-      #turn { font-size: 1.2em; }
-      #timer { font-size: 2.2em; min-width: 115px; padding: 10vw 2vw 9vw 2vw; }
+    .modal p { margin:0; font-weight:800; color:#22212a; text-align:center; }
+    .modal-actions { display:flex; gap:12px; width:100%; justify-content:center; }
+    .modal-actions button { padding:10px 14px; border-radius:10px; border:none; font-weight:800; cursor:pointer; }
+    .modal .confirm { background:var(--danger); color:white; }
+    .modal .cancel { background: var(--card); color: #22212a; border:1px solid rgba(34,33,42,0.06); }
+
+    @media (max-width:360px){
+      .avatar{ width:42px; height:42px; font-size:0.95rem; }
+      #timer{ font-size: clamp(1.4rem, 14vw, 2.6rem); padding:10px 18px; }
     }
   </style>
 </head>
 <body>
-  <div id="menu" class="card active">
-    <h1>Temporizador Rummy</h1>
-    <div class="player-inputs" id="players"></div>
-    <div class="controls">
-      <button id="addPlayer" class="small-btn">➕ Añadir</button>
-      <button id="removePlayer" class="small-btn">❌ Eliminar</button>
-    </div>
-    <div class="time-settings">
-      <label for="time">Tiempo por jugador (min): </label>
-      <input type="number" id="time" value="10" min="1" max="99">
-    </div>
-    <div class="time-settings">
-      <label for="penalty">Penalización (seg): </label>
-      <input type="number" id="penalty" value="10" min="1" max="99">
-    </div>
-    <button id="startBtn">Comenzar</button>
-  </div>
+  <!-- MENU -->
+  <section id="menu" class="panel active" aria-hidden="false">
+    <div class="card" role="region" aria-label="Menú principal">
+      <h1 class="title">Temporizador Rummy</h1>
+      <p class="subtitle">Rápido, claro y preparado para móvil</p>
 
-  <div id="selectFirst">
-    <label>¿Quién comienza?</label>
-    <div class="first-player-btns" id="firstPlayerBtns"></div>
-  </div>
+      <div class="player-inputs" id="players" aria-label="Jugadores"></div>
 
-  <div id="game">
-    <div class="game-content">
-      <div id="turn"></div>
-      <div id="timer"></div>
-      <div class="game-btns">
-        <button id="endTurnBtn">Fin de turno</button>
-        <button id="pauseBtn">Pausa</button>
+      <div class="controls" role="group" aria-label="Controles jugadores">
+        <button id="addPlayer" type="button" aria-label="Añadir jugador">➕ Añadir</button>
+        <button id="removePlayer" type="button" aria-label="Eliminar jugador">❌ Eliminar</button>
       </div>
-      <button id="endGameBtn">Fin de partida</button>
-    </div>
-  </div>
 
-  <!-- Modal confirmación salir -->
-  <div id="confirmModalBg" class="modal-bg">
-    <div class="modal">
-      <p>¿Estás seguro de que quieres salir de la partida?</p>
-      <div class="modal-btns">
-        <button class="confirm" id="confirmExitBtn">Sí, salir</button>
-        <button class="cancel" id="cancelExitBtn">Cancelar</button>
+      <div class="settings" aria-label="Ajustes">
+        <div class="field">
+          <label for="time">Tiempo (min)</label>
+          <input id="time" type="number" min="1" max="99" value="10" />
+        </div>
+        <div class="field">
+          <label for="penalty">Penalización (seg)</label>
+          <input id="penalty" type="number" min="1" max="99" value="10" />
+        </div>
+      </div>
+
+      <button id="startBtn" type="button">Comenzar</button>
+    </div>
+  </section>
+
+  <!-- SELECT FIRST -->
+  <section id="selectFirst" class="panel" aria-hidden="true">
+    <div class="card" role="dialog" aria-label="Quién comienza">
+      <label style="font-weight:900; color:var(--primary); font-size:clamp(1rem,4.5vw,1.2rem);">¿Quién comienza?</label>
+      <div class="first-player-btns" id="firstPlayerBtns" aria-label="Seleccionar primer jugador"></div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="panel" aria-hidden="true">
+    <div class="game-card card" role="region" aria-label="Partida">
+      <div class="turn-row" role="status" aria-live="polite">
+        <div class="avatar" id="turnAvatar">A</div>
+        <div class="turn-text">
+          <div class="turn-label">Turno de:</div>
+          <div class="turn-name" id="turnName">Jugador 1</div>
+        </div>
+      </div>
+
+      <div id="timer" aria-live="polite">0:00</div>
+
+      <div class="game-btns">
+        <button id="endTurnBtn" type="button">Fin de turno</button>
+        <button id="pauseBtn" type="button">Pausa</button>
+      </div>
+
+      <button id="endGameBtn" type="button">Fin de partida</button>
+    </div>
+  </section>
+
+  <!-- Modal confirmación -->
+  <div id="confirmModalBg" class="modal-bg" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <p>¿Estás seguro de que quieres abandonar la partida?</p>
+      <div class="modal-actions">
+        <button class="confirm" id="confirmExitBtn" type="button">Sí, salir</button>
+        <button class="cancel" id="cancelExitBtn" type="button">Cancelar</button>
       </div>
     </div>
   </div>
 
   <script>
-    const playersDiv = document.getElementById("players");
-    const addPlayerBtn = document.getElementById("addPlayer");
-    const removePlayerBtn = document.getElementById("removePlayer");
-    const startBtn = document.getElementById("startBtn");
-    const menu = document.getElementById("menu");
-    const game = document.getElementById("game");
-    const selectFirstDiv = document.getElementById("selectFirst");
-    const firstPlayerBtnsDiv = document.getElementById("firstPlayerBtns");
-    const turnDiv = document.getElementById("turn");
-    const timerDiv = document.getElementById("timer");
-    const endTurnBtn = document.getElementById("endTurnBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const endGameBtn = document.getElementById("endGameBtn");
-    const penaltyInput = document.getElementById("penalty");
-    const timeInput = document.getElementById("time");
-    // Modal
-    const confirmModalBg = document.getElementById("confirmModalBg");
-    const confirmExitBtn = document.getElementById("confirmExitBtn");
-    const cancelExitBtn = document.getElementById("cancelExitBtn");
+    // Elements
+    const playersDiv = document.getElementById('players');
+    const addPlayerBtn = document.getElementById('addPlayer');
+    const removePlayerBtn = document.getElementById('removePlayer');
+    const startBtn = document.getElementById('startBtn');
+    const menu = document.getElementById('menu');
+    const selectFirst = document.getElementById('selectFirst');
+    const firstPlayerBtns = document.getElementById('firstPlayerBtns');
+    const game = document.getElementById('game');
+    const turnName = document.getElementById('turnName');
+    const turnAvatar = document.getElementById('turnAvatar');
+    const timerEl = document.getElementById('timer');
+    const endTurnBtn = document.getElementById('endTurnBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const endGameBtn = document.getElementById('endGameBtn');
+    const timeInput = document.getElementById('time');
+    const penaltyInput = document.getElementById('penalty');
 
+    const modalBg = document.getElementById('confirmModalBg');
+    const confirmExitBtn = document.getElementById('confirmExitBtn');
+    const cancelExitBtn = document.getElementById('cancelExitBtn');
+
+    // State
     let players = [];
     let timers = [];
     let currentPlayer = 0;
@@ -487,158 +360,166 @@
     let penaltyTime = 10;
     let reachedZero = [];
 
-    function setRandomBackground() {
-      const gradients = [
-        "linear-gradient(135deg, #f6effd 0%, #eaf6f3 100%)",
-        "linear-gradient(135deg, #f7f7fb 0%, #e9eafc 100%)",
-        "linear-gradient(135deg, #f7f7fb 0%, #e6f6ee 100%)"
-      ];
-      document.body.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+    // Helpers
+    function showPanel(id){
+      [menu, selectFirst, game].forEach(p => {
+        p.classList.remove('active');
+        p.setAttribute('aria-hidden','true');
+      });
+      const map = { menu, selectFirst, game };
+      map[id].classList.add('active');
+      map[id].setAttribute('aria-hidden','false');
     }
 
-    function addPlayerField() {
-      if (playersDiv.children.length < 6) {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.placeholder = "Nombre";
-        playersDiv.appendChild(input);
-      }
+    function setRandomBackground(){
+      const grads = [
+        'linear-gradient(160deg,#f7f6ff 0%, #f0fbf7 100%)',
+        'linear-gradient(160deg,#fffaf8 0%, #f3fbff 100%)',
+        'linear-gradient(160deg,#f9fbff 0%, #f4fff6 100%)'
+      ];
+      document.body.style.background = grads[Math.floor(Math.random()*grads.length)];
     }
-    function removePlayerField() {
-      if (playersDiv.children.length > 2) {
+
+    function addPlayerField(){
+      if (playersDiv.children.length >= 6) return;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = `Jugador ${playersDiv.children.length + 1}`;
+      playersDiv.appendChild(input);
+    }
+    function removePlayerField(){
+      if (playersDiv.children.length > 2){
         playersDiv.removeChild(playersDiv.lastChild);
       }
     }
-
-    function getPlayerNames() {
-      return Array.from(playersDiv.querySelectorAll("input")).map(
-        (input, i) => input.value.trim() || `Jugador ${i+1}`
-      );
+    function getPlayerNames(){
+      const inputs = Array.from(playersDiv.querySelectorAll('input'));
+      if (!inputs.length) return ['Jugador 1','Jugador 2'];
+      return inputs.map((el,i) => el.value.trim() || `Jugador ${i+1}`);
     }
 
-    function showPanel(panelId) {
-      menu.classList.remove('active');
-      selectFirstDiv.classList.remove('active');
-      game.classList.remove('active');
-      if (panelId === 'menu') menu.classList.add('active');
-      if (panelId === 'selectFirst') selectFirstDiv.classList.add('active');
-      if (panelId === 'game') game.classList.add('active');
-    }
-
-    function showFirstPlayerSelection(names) {
-      firstPlayerBtnsDiv.innerHTML = "";
+    function showFirstPlayerSelection(names){
+      firstPlayerBtns.innerHTML = '';
       names.forEach((name, i) => {
-        const btn = document.createElement("button");
+        const btn = document.createElement('button');
+        btn.type = 'button';
         btn.textContent = name;
-        btn.onclick = () => beginGame(i, names);
-        firstPlayerBtnsDiv.appendChild(btn);
+        btn.addEventListener('click', () => beginGame(i, names));
+        firstPlayerBtns.appendChild(btn);
       });
       showPanel('selectFirst');
     }
-
-    function startGameSetup() {
+    function startGameSetup(){
       const names = getPlayerNames();
-      if (names.length < 2) return alert("Debes tener al menos 2 jugadores");
+      if (names.length < 2) return alert('Debes tener al menos 2 jugadores');
       showFirstPlayerSelection(names);
     }
 
-    function beginGame(firstPlayerIndex, names) {
+    // Game flow
+    function beginGame(firstIndex, names){
       players = names;
-      currentPlayer = firstPlayerIndex;
-      const minutes = parseInt(timeInput.value);
-      penaltyTime = parseInt(penaltyInput.value);
+      currentPlayer = firstIndex;
+      const minutes = Math.max(1, parseInt(timeInput.value) || 10);
+      penaltyTime = Math.max(1, parseInt(penaltyInput.value) || 10);
       timers = Array(players.length).fill(minutes * 60);
       reachedZero = Array(players.length).fill(false);
+      paused = false;
+      pauseBtn.textContent = 'Pausa';
       showPanel('game');
-      updateTurn();
+      updateTurnVisual();
       startTimer();
     }
 
-    function updateTurn() {
-      turnDiv.style.opacity = 0;
-      setTimeout(() => {
-        turnDiv.textContent = `Turno de ${players[currentPlayer]}`;
-        turnDiv.style.opacity = 1;
-      }, 160);
-      if (reachedZero[currentPlayer]) {
-        timers[currentPlayer] = penaltyTime;
-      }
+    function updateTurnVisual(){
+      const name = players[currentPlayer] || ('Jugador ' + (currentPlayer+1));
+      // Avatar initials
+      const initials = name.split(' ').map(n => n[0] || '').slice(0,2).join('').toUpperCase();
+      turnAvatar.textContent = initials || 'J';
+      turnName.textContent = name;
     }
 
-    function startTimer() {
+    function startTimer(){
       clearInterval(interval);
+      renderTime();
       interval = setInterval(() => {
         if (!paused) {
           if (timers[currentPlayer] > 0) {
             timers[currentPlayer]--;
-            displayTime();
+            renderTime();
           } else {
             reachedZero[currentPlayer] = true;
             endTurn();
           }
         }
       }, 1000);
-      displayTime();
     }
 
-    function displayTime() {
-      const sec = timers[currentPlayer];
-      const min = Math.floor(sec / 60);
+    function renderTime(){
+      const sec = Math.max(0, timers[currentPlayer] || 0);
+      const m = Math.floor(sec / 60);
       const s = sec % 60;
-      timerDiv.textContent = `${min}:${s < 10 ? '0' : ''}${s}`;
+      timerEl.textContent = `${m}:${s < 10 ? '0' + s : s}`;
     }
 
-    function endTurn() {
+    function endTurn(){
       currentPlayer = (currentPlayer + 1) % players.length;
-      updateTurn();
+      updateTurnVisual();
       startTimer();
     }
 
-    function togglePause() {
+    function togglePause(){
       paused = !paused;
       pauseBtn.textContent = paused ? 'Reanudar' : 'Pausa';
-      pauseBtn.style.background = paused ? "var(--primary)" : "var(--accent)";
-      pauseBtn.style.color = paused ? "var(--white)" : "var(--text)";
+      pauseBtn.style.background = paused ? 'linear-gradient(90deg,var(--primary),var(--secondary))' : '';
+      pauseBtn.style.color = paused ? '#fff' : '';
     }
 
-    // Mostrar modal de confirmación
-    function showEndGameModal() {
-      confirmModalBg.classList.add('active');
+    // Modal: timer keeps running while modal shown
+    function showEndGameModal(){
+      modalBg.classList.add('active');
+      modalBg.setAttribute('aria-hidden','false');
+      confirmExitBtn.focus();
     }
-    // Ocultar modal de confirmación
-    function hideEndGameModal() {
-      confirmModalBg.classList.remove('active');
+    function hideEndGameModal(){
+      modalBg.classList.remove('active');
+      modalBg.setAttribute('aria-hidden','true');
+      endGameBtn.focus();
     }
-    // Salir de la partida (fin de partida real)
-    function confirmEndGame() {
+    function confirmEndGame(){
       clearInterval(interval);
-      showPanel('menu');
-      pauseBtn.textContent = "Pausa";
+      modalBg.classList.remove('active');
+      modalBg.setAttribute('aria-hidden','true');
+      // Reset state and show menu with existing inputs (do not remove input fields)
+      players = [];
+      timers = [];
+      currentPlayer = 0;
       paused = false;
-      hideEndGameModal();
+      pauseBtn.textContent = 'Pausa';
+      showPanel('menu');
     }
 
-    addPlayerBtn.addEventListener("click", addPlayerField);
-    removePlayerBtn.addEventListener("click", removePlayerField);
-    startBtn.addEventListener("click", startGameSetup);
-    endTurnBtn.addEventListener("click", endTurn);
-    pauseBtn.addEventListener("click", togglePause);
-    endGameBtn.addEventListener("click", showEndGameModal);
+    // Events
+    addPlayerBtn.addEventListener('click', addPlayerField);
+    removePlayerBtn.addEventListener('click', removePlayerField);
+    startBtn.addEventListener('click', startGameSetup);
+    endTurnBtn.addEventListener('click', endTurn);
+    pauseBtn.addEventListener('click', togglePause);
+    endGameBtn.addEventListener('click', showEndGameModal);
 
-    confirmExitBtn.addEventListener("click", confirmEndGame);
-    cancelExitBtn.addEventListener("click", hideEndGameModal);
-
-    // Cerrar modal con Escape
+    confirmExitBtn.addEventListener('click', confirmEndGame);
+    cancelExitBtn.addEventListener('click', hideEndGameModal);
+    modalBg.addEventListener('click', (e) => { if (e.target === modalBg) hideEndGameModal(); });
     window.addEventListener('keydown', (e) => {
-      if (e.key === "Escape" && confirmModalBg.classList.contains('active')) {
-        hideEndGameModal();
-      }
+      if (e.key === 'Escape' && modalBg.classList.contains('active')) hideEndGameModal();
     });
 
+    // Init
     setRandomBackground();
     addPlayerField();
     addPlayerField();
     showPanel('menu');
+    // ensure no accidental drag selection on mobile
+    document.addEventListener('touchstart', ()=>{}, {passive:true});
   </script>
 </body>
 </html>
