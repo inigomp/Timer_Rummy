@@ -22,6 +22,7 @@
       --timer-bg: #fff;
       --timer-text: #312e4e;
       --timer-shadow: 0 4px 24px 0 rgba(49,46,78,0.09);
+      --modal-bg: rgba(54, 53, 74, 0.25);
     }
     html, body {
       padding: 0;
@@ -34,7 +35,6 @@
       box-sizing: border-box;
     }
     body {
-      /* Cambiado: NO display flex aquí, solo en los paneles activos */
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -158,14 +158,12 @@
       transform: scale(1.018);
       color: var(--white);
     }
-    /* Oculta los paneles por defecto */
     #menu, #selectFirst, #game {
       display: none;
       min-height: 100vh;
       align-items: center;
       justify-content: center;
     }
-    /* Solo el activo es visible y centrado con flex */
     #menu.active, #selectFirst.active, #game.active {
       display: flex;
       flex-direction: column;
@@ -333,6 +331,74 @@
     #endGameBtn:hover {
       background: #cf6f6f;
     }
+    /* Modal de confirmación */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100vh;
+      background: var(--modal-bg);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal {
+      background: var(--white);
+      color: var(--text);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(54,53,74,0.13);
+      padding: 32px 28px 24px 28px;
+      min-width: 260px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: pop 0.35s cubic-bezier(.42,1.6,.46,.98);
+    }
+    .modal p {
+      font-size: 1.12em;
+      font-weight: 600;
+      margin-bottom: 32px;
+      text-align: center;
+      color: var(--text);
+    }
+    .modal-btns {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+    .modal-btns button {
+      font-size: 1.04em;
+      font-weight: 700;
+      border-radius: 9px;
+      padding: 10px 18px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.13s, transform 0.13s;
+    }
+    .modal-btns .confirm {
+      background: var(--danger);
+      color: var(--white);
+    }
+    .modal-btns .cancel {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--text-dim);
+    }
+    .modal-btns .cancel:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+    .modal-btns .confirm:hover {
+      filter: brightness(1.1);
+      background: #cf6f6f;
+    }
     @media (max-width: 500px) {
       .card, .game-content, #selectFirst {
         min-width: unset;
@@ -381,6 +447,17 @@
     </div>
   </div>
 
+  <!-- Modal confirmación salir -->
+  <div id="confirmModalBg" class="modal-bg">
+    <div class="modal">
+      <p>¿Estás seguro de que quieres salir de la partida?</p>
+      <div class="modal-btns">
+        <button class="confirm" id="confirmExitBtn">Sí, salir</button>
+        <button class="cancel" id="cancelExitBtn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const playersDiv = document.getElementById("players");
     const addPlayerBtn = document.getElementById("addPlayer");
@@ -397,6 +474,10 @@
     const endGameBtn = document.getElementById("endGameBtn");
     const penaltyInput = document.getElementById("penalty");
     const timeInput = document.getElementById("time");
+    // Modal
+    const confirmModalBg = document.getElementById("confirmModalBg");
+    const confirmExitBtn = document.getElementById("confirmExitBtn");
+    const cancelExitBtn = document.getElementById("cancelExitBtn");
 
     let players = [];
     let timers = [];
@@ -436,11 +517,9 @@
     }
 
     function showPanel(panelId) {
-      // Oculta todos los paneles
       menu.classList.remove('active');
       selectFirstDiv.classList.remove('active');
       game.classList.remove('active');
-      // Muestra sólo el solicitado
       if (panelId === 'menu') menu.classList.add('active');
       if (panelId === 'selectFirst') selectFirstDiv.classList.add('active');
       if (panelId === 'game') game.classList.add('active');
@@ -522,11 +601,21 @@
       pauseBtn.style.color = paused ? "var(--white)" : "var(--text)";
     }
 
-    function endGame() {
+    // Mostrar modal de confirmación
+    function showEndGameModal() {
+      confirmModalBg.classList.add('active');
+    }
+    // Ocultar modal de confirmación
+    function hideEndGameModal() {
+      confirmModalBg.classList.remove('active');
+    }
+    // Salir de la partida (fin de partida real)
+    function confirmEndGame() {
       clearInterval(interval);
       showPanel('menu');
       pauseBtn.textContent = "Pausa";
       paused = false;
+      hideEndGameModal();
     }
 
     addPlayerBtn.addEventListener("click", addPlayerField);
@@ -534,7 +623,17 @@
     startBtn.addEventListener("click", startGameSetup);
     endTurnBtn.addEventListener("click", endTurn);
     pauseBtn.addEventListener("click", togglePause);
-    endGameBtn.addEventListener("click", endGame);
+    endGameBtn.addEventListener("click", showEndGameModal);
+
+    confirmExitBtn.addEventListener("click", confirmEndGame);
+    cancelExitBtn.addEventListener("click", hideEndGameModal);
+
+    // Cerrar modal con Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === "Escape" && confirmModalBg.classList.contains('active')) {
+        hideEndGameModal();
+      }
+    });
 
     setRandomBackground();
     addPlayerField();
