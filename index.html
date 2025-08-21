@@ -3,26 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Temporizador Rummy — Responsive</title>
+  <title>Temporizador Rummy — Móvil optimizado</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
       --primary:#7c63e6;
       --secondary:#5fc3a6;
-      --bg-a: #f6f5ff;
+      --bg-a: #f7f6ff;
       --bg-b: #f1fbf7;
-      --card: rgba(255,255,255,0.9);
-      --muted:#8c8fa3;
+      --card-bg: rgba(255,255,255,0.95);
+      --muted:#7f8197;
       --danger:#ef6b6b;
       --glass: rgba(255,255,255,0.6);
-      --shadow: 0 12px 30px rgba(54,53,74,0.10);
-      --radius:16px;
+      --shadow-strong: 0 18px 40px rgba(34,33,42,0.09);
+      --shadow-soft: 0 8px 24px rgba(54,53,74,0.06);
+      --radius:18px;
       --gap:12px;
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
+      --tap-min: 52px; /* minimum comfortable touch target */
     }
 
-    /* Base layout - no scroll anywhere */
+    /* Base + no scroll */
     html,body{
       height:100%;
       width:100%;
@@ -32,17 +34,17 @@
       background: linear-gradient(160deg,var(--bg-a), var(--bg-b));
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
-      color: #22212a;
+      color:#201f2a;
     }
     body{
       min-height:100dvh;
       height:100dvh;
       width:100vw;
-      overflow:hidden;
+      overflow:hidden; /* no scroll */
       box-sizing:border-box;
       -webkit-user-select:none;
-      -ms-touch-action:manipulation;
       touch-action:manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Fullscreen panels */
@@ -52,33 +54,33 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: calc(18px + var(--safe-top)) 14px calc(18px + var(--safe-bottom));
+      padding: calc(10px + var(--safe-top)) 12px calc(10px + var(--safe-bottom));
       box-sizing: border-box;
     }
     section.panel.active { display:flex; }
 
-    /* Card container */
+    /* Card container: reduce top/bottom whitespace and make content larger */
     .card {
-      width: min(96vw,460px);
-      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.82));
+      width: min(96vw,480px);
+      background: linear-gradient(180deg,var(--card-bg), #fff);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: clamp(12px,4vw,28px);
+      box-shadow: var(--shadow-strong);
+      padding: clamp(12px, 3.5vw, 20px);
       display:flex;
       flex-direction:column;
       gap: var(--gap);
       align-items: center;
       box-sizing:border-box;
-      max-height: calc(100dvh - 3rem);
+      max-height: calc(100dvh - 1.2rem); /* keep card filling more of the screen */
     }
 
-    /* Header */
+    /* Title: larger for mobile */
     .title {
       width:100%;
       text-align:center;
       font-weight:900;
       letter-spacing:-0.02em;
-      font-size: clamp(1.1rem, 6.6vw, 1.9rem);
+      font-size: clamp(1.4rem, 8.5vw, 2.4rem); /* bigger */
       line-height:1;
       margin:0;
       color: transparent;
@@ -91,11 +93,11 @@
       margin:0;
       color:var(--muted);
       font-weight:600;
-      font-size:clamp(0.86rem,3.6vw,1rem);
+      font-size:clamp(0.95rem,4vw,1.05rem);
       text-align:center;
     }
 
-    /* Players input */
+    /* Players inputs: make inputs taller and clearer */
     .player-inputs {
       width:100%;
       display:flex;
@@ -105,156 +107,208 @@
     .player-inputs input {
       width:100%;
       box-sizing:border-box;
-      padding: clamp(8px, 2.8vw, 12px);
-      border-radius: 10px;
-      border: 1px solid rgba(124,99,238,0.18);
+      padding: clamp(12px, 4vw, 16px);
+      border-radius: 12px;
+      border: 1px solid rgba(124,99,238,0.16);
       outline:none;
-      font-weight:700;
+      font-weight:800;
       text-align:center;
-      font-size: clamp(0.95rem, 3.7vw, 1rem);
+      font-size: clamp(1rem, 4vw, 1.12rem); /* larger */
       background: linear-gradient(180deg,#fff,#fbfbff);
     }
 
-    /* Controls row */
+    /* Controls row: larger touch targets */
     .controls {
       width:100%;
       display:flex;
-      gap:10px;
+      gap:12px;
       justify-content:center;
     }
     .controls button{
       flex:1;
       min-width:0;
-      padding:10px;
-      border-radius:10px;
+      padding: 0.45rem 0.6rem;
+      height: var(--tap-min);
+      border-radius:12px;
       border:none;
       background: linear-gradient(90deg, rgba(124,99,238,0.12), rgba(95,195,166,0.06));
       color:var(--primary);
       font-weight:800;
-      box-shadow: 0 6px 18px rgba(124,99,238,0.04);
+      font-size: clamp(0.98rem,3.8vw,1.06rem);
+      box-shadow: var(--shadow-soft);
       cursor:pointer;
     }
 
-    /* Settings row */
+    /* Settings: stacked on narrow screens */
     .settings {
       width:100%;
       display:flex;
       gap:10px;
       justify-content:space-between;
       align-items:center;
+      flex-wrap:wrap;
     }
     .settings .field {
       display:flex;
       flex-direction:column;
       gap:6px;
-      align-items:flex-start;
       font-weight:700;
       color:var(--muted);
-      font-size:clamp(0.86rem,3.2vw,1rem);
+      font-size:clamp(0.92rem,3.4vw,1rem);
+      flex: 1 1 46%;
+      min-width: 120px;
     }
     .settings input{
-      width:84px;
-      padding:8px 10px;
+      width:100%;
+      padding:10px;
       border-radius:10px;
       border:1px solid rgba(124,99,238,0.12);
       text-align:center;
       background:#fff;
       font-weight:800;
+      font-size: clamp(0.98rem,3.8vw,1.06rem);
     }
 
-    /* Primary start button */
+    /* Start button — larger and prominent */
     #startBtn {
       width:100%;
-      margin-top:6px;
-      padding: clamp(10px,3.5vw,14px);
-      border-radius:12px;
+      margin-top:4px;
+      padding: clamp(12px, 4vw, 18px);
+      border-radius:14px;
       border:none;
       color:white;
       font-weight:900;
-      font-size: clamp(1rem,4vw,1.3rem);
+      font-size: clamp(1.08rem, 4.6vw, 1.4rem);
       background: linear-gradient(90deg,var(--primary),var(--secondary));
-      box-shadow: 0 10px 30px rgba(124,99,238,0.12);
+      box-shadow: 0 16px 40px rgba(124,99,238,0.12);
       cursor:pointer;
+      height: calc(var(--tap-min) + 4px);
     }
 
-    /* Select-first card tweaks */
+    /* Select-first tweaks */
     #selectFirst .card { align-items:stretch; gap:14px; }
     .first-player-btns { display:flex; flex-direction:column; gap:12px; }
     .first-player-btns button {
-      padding:12px;
-      border-radius:10px;
+      padding:14px;
+      height: var(--tap-min);
+      border-radius:12px;
       border:2px solid rgba(124,99,238,0.22);
       background: linear-gradient(90deg,#f3f0ff,#effff7);
-      font-weight:800;
+      font-weight:900;
+      font-size: clamp(1rem,4.2vw,1.12rem);
       cursor:pointer;
     }
 
-    /* Game UI */
-    .game-card { width: min(96vw,420px); display:flex; flex-direction:column; gap:12px; align-items:center; }
-    .turn-row { width:100%; display:flex; gap:12px; align-items:center; justify-content:center; }
+    /* Game UI: fill vertical space better */
+    .game-card {
+      width: min(96vw,440px);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:stretch;
+      padding: clamp(14px, 4vw, 20px);
+    }
+    .turn-row {
+      width:100%;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+    }
     .avatar {
-      width:48px; height:48px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       background: linear-gradient(135deg,var(--primary),var(--secondary));
-      color:white; font-weight:900; font-size:1.05rem;
-      box-shadow: 0 6px 18px rgba(124,99,238,0.12);
+      color:white;
+      font-weight:900;
+      font-size:1.1rem;
+      box-shadow: 0 10px 26px rgba(124,99,238,0.12);
       flex-shrink:0;
     }
     .turn-text {
       display:flex;
       flex-direction:column;
-      gap:2px;
-      text-align:left;
+      gap:4px;
     }
-    .turn-label { font-weight:700; font-size:clamp(0.86rem,3.2vw,1rem); color:var(--muted); }
-    .turn-name { font-weight:900; font-size:clamp(1.05rem,5.6vw,1.4rem); color:var(--primary); }
+    .turn-label { font-weight:700; font-size:clamp(0.95rem,3.6vw,1.08rem); color:var(--muted); }
+    .turn-name { font-weight:900; font-size:clamp(1.2rem,6.2vw,1.8rem); color:var(--primary); }
 
-    /* Timer */
+    /* Timer — much larger for visibility */
     #timer {
       font-variant-numeric:tabular-nums;
       font-weight:900;
-      font-size: clamp(1.8rem, 10vw, 3.6rem);
-      padding: clamp(10px, 3.8vw, 20px) clamp(16px,5vw,36px);
-      border-radius:12px;
+      font-size: clamp(2rem, 14vw, 4.8rem);
+      padding: clamp(12px, 4.6vw, 24px) clamp(18px,6vw,40px);
+      border-radius:14px;
       background: linear-gradient(180deg,#fff,#fbfbff);
-      box-shadow: 0 10px 30px rgba(49,46,78,0.06);
-      color: #22212a;
+      box-shadow: 0 18px 48px rgba(49,46,78,0.08);
+      color:#1f1e29;
       text-align:center;
-      min-width:120px;
+      min-width:140px;
+      align-self:center;
     }
 
-    .game-btns { width:100%; display:flex; gap:10px; }
+    .game-btns { width:100%; display:flex; gap:12px; }
     .game-btns button {
-      flex:1; padding:12px; border-radius:10px; border:none; font-weight:800; cursor:pointer;
-      box-shadow: 0 6px 18px rgba(54,53,74,0.06);
+      flex:1;
+      padding:14px;
+      border-radius:12px;
+      border:none;
+      font-weight:900;
+      font-size: clamp(1rem,4vw,1.12rem);
+      cursor:pointer;
+      box-shadow: var(--shadow-soft);
+      height: calc(var(--tap-min) + 2px);
     }
     #endTurnBtn{ background: linear-gradient(90deg,var(--primary),var(--secondary)); color:white; }
-    #pauseBtn{ background: var(--card); color:var(--primary); border:1px solid rgba(95,195,166,0.12); }
+    #pauseBtn{ background: var(--card-bg); color:var(--primary); border:1px solid rgba(95,195,166,0.12); }
 
     #endGameBtn {
-      width:100%; padding:11px; border-radius:10px; border:none; background:var(--danger); color:white; font-weight:900;
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:none;
+      background:var(--danger);
+      color:white;
+      font-weight:900;
+      font-size: clamp(1rem,4vw,1.12rem);
+      cursor:pointer;
+      height: calc(var(--tap-min) + 2px);
     }
 
-    /* Modal */
+    /* Modal: centred and unobtrusive */
     .modal-bg {
       position: fixed; inset:0; display:none; align-items:center; justify-content:center;
-      background: rgba(34,33,42,0.28); z-index:1200; padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+      background: rgba(34,33,42,0.28); z-index:1200;
+      padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
       box-sizing:border-box;
     }
     .modal-bg.active { display:flex; }
     .modal {
-      width: min(92vw,380px); background: white; border-radius:12px; padding:16px; box-shadow: 0 18px 50px rgba(34,33,42,0.14);
-      display:flex; flex-direction:column; gap:12px; align-items:center;
+      width: min(92vw,400px);
+      background: white;
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 22px 60px rgba(34,33,42,0.14);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
     }
-    .modal p { margin:0; font-weight:800; color:#22212a; text-align:center; }
+    .modal p { margin:0; font-weight:900; color:#201f2a; text-align:center; font-size:1rem; }
     .modal-actions { display:flex; gap:12px; width:100%; justify-content:center; }
-    .modal-actions button { padding:10px 14px; border-radius:10px; border:none; font-weight:800; cursor:pointer; }
+    .modal-actions button { padding:12px 16px; border-radius:12px; border:none; font-weight:900; cursor:pointer; font-size:1rem; }
     .modal .confirm { background:var(--danger); color:white; }
-    .modal .cancel { background: var(--card); color: #22212a; border:1px solid rgba(34,33,42,0.06); }
+    .modal .cancel { background:var(--card-bg); color:#201f2a; border:1px solid rgba(34,33,42,0.06); }
 
     @media (max-width:360px){
-      .avatar{ width:42px; height:42px; font-size:0.95rem; }
-      #timer{ font-size: clamp(1.4rem, 14vw, 2.6rem); padding:10px 18px; }
+      .avatar{ width:56px; height:56px; font-size:1rem; }
+      #timer{ font-size: clamp(1.6rem, 16vw, 3.4rem); padding:10px 18px; }
+      .card { padding: 12px; }
     }
   </style>
 </head>
@@ -263,7 +317,7 @@
   <section id="menu" class="panel active" aria-hidden="false">
     <div class="card" role="region" aria-label="Menú principal">
       <h1 class="title">Temporizador Rummy</h1>
-      <p class="subtitle">Rápido, claro y preparado para móvil</p>
+      <p class="subtitle">Diseñado para móvil — todo a mano</p>
 
       <div class="player-inputs" id="players" aria-label="Jugadores"></div>
 
@@ -299,7 +353,7 @@
   <section id="game" class="panel" aria-hidden="true">
     <div class="game-card card" role="region" aria-label="Partida">
       <div class="turn-row" role="status" aria-live="polite">
-        <div class="avatar" id="turnAvatar">A</div>
+        <div class="avatar" id="turnAvatar">J</div>
         <div class="turn-text">
           <div class="turn-label">Turno de:</div>
           <div class="turn-name" id="turnName">Jugador 1</div>
@@ -329,7 +383,7 @@
   </div>
 
   <script>
-    // Elements
+    // Element references
     const playersDiv = document.getElementById('players');
     const addPlayerBtn = document.getElementById('addPlayer');
     const removePlayerBtn = document.getElementById('removePlayer');
@@ -380,12 +434,14 @@
       document.body.style.background = grads[Math.floor(Math.random()*grads.length)];
     }
 
+    // Players controls
     function addPlayerField(){
       if (playersDiv.children.length >= 6) return;
       const input = document.createElement('input');
       input.type = 'text';
       input.placeholder = `Jugador ${playersDiv.children.length + 1}`;
       playersDiv.appendChild(input);
+      // keep focus behavior natural
     }
     function removePlayerField(){
       if (playersDiv.children.length > 2){
@@ -398,6 +454,7 @@
       return inputs.map((el,i) => el.value.trim() || `Jugador ${i+1}`);
     }
 
+    // First player selection
     function showFirstPlayerSelection(names){
       firstPlayerBtns.innerHTML = '';
       names.forEach((name, i) => {
@@ -415,7 +472,7 @@
       showFirstPlayerSelection(names);
     }
 
-    // Game flow
+    // Game lifecycle
     function beginGame(firstIndex, names){
       players = names;
       currentPlayer = firstIndex;
@@ -432,7 +489,6 @@
 
     function updateTurnVisual(){
       const name = players[currentPlayer] || ('Jugador ' + (currentPlayer+1));
-      // Avatar initials
       const initials = name.split(' ').map(n => n[0] || '').slice(0,2).join('').toUpperCase();
       turnAvatar.textContent = initials || 'J';
       turnName.textContent = name;
@@ -470,8 +526,13 @@
     function togglePause(){
       paused = !paused;
       pauseBtn.textContent = paused ? 'Reanudar' : 'Pausa';
-      pauseBtn.style.background = paused ? 'linear-gradient(90deg,var(--primary),var(--secondary))' : '';
-      pauseBtn.style.color = paused ? '#fff' : '';
+      if (paused) {
+        pauseBtn.style.background = 'linear-gradient(90deg,var(--primary),var(--secondary))';
+        pauseBtn.style.color = '#fff';
+      } else {
+        pauseBtn.style.background = '';
+        pauseBtn.style.color = '';
+      }
     }
 
     // Modal: timer keeps running while modal shown
@@ -489,7 +550,7 @@
       clearInterval(interval);
       modalBg.classList.remove('active');
       modalBg.setAttribute('aria-hidden','true');
-      // Reset state and show menu with existing inputs (do not remove input fields)
+      // Reset state and go back to menu, keep existing input fields
       players = [];
       timers = [];
       currentPlayer = 0;
@@ -518,7 +579,6 @@
     addPlayerField();
     addPlayerField();
     showPanel('menu');
-    // ensure no accidental drag selection on mobile
     document.addEventListener('touchstart', ()=>{}, {passive:true});
   </script>
 </body>
