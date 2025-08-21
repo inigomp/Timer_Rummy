@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Temporizador Rummy — Móvil optimizado</title>
+  <title>Temporizador Rummy — Steppers</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -22,6 +22,7 @@
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
       --tap-min: 52px; /* minimum comfortable touch target */
+      --small-input-w: 56px; /* ancho para inputs de 2 dígitos */
     }
 
     /* Base + no scroll */
@@ -71,7 +72,7 @@
       gap: var(--gap);
       align-items: center;
       box-sizing:border-box;
-      max-height: calc(100dvh - 1.2rem); /* keep card filling more of the screen */
+      max-height: calc(100dvh - 1.2rem);
     }
 
     /* Title: larger for mobile */
@@ -80,7 +81,7 @@
       text-align:center;
       font-weight:900;
       letter-spacing:-0.02em;
-      font-size: clamp(1.4rem, 8.5vw, 2.4rem); /* bigger */
+      font-size: clamp(1.4rem, 8.5vw, 2.4rem);
       line-height:1;
       margin:0;
       color: transparent;
@@ -113,7 +114,7 @@
       outline:none;
       font-weight:800;
       text-align:center;
-      font-size: clamp(1rem, 4vw, 1.12rem); /* larger */
+      font-size: clamp(1rem, 4vw, 1.12rem);
       background: linear-gradient(180deg,#fff,#fbfbff);
     }
 
@@ -145,28 +146,70 @@
       display:flex;
       gap:10px;
       justify-content:space-between;
-      align-items:center;
+      align-items:flex-start;
       flex-wrap:wrap;
     }
     .settings .field {
       display:flex;
       flex-direction:column;
-      gap:6px;
+      gap:8px;
       font-weight:700;
       color:var(--muted);
       font-size:clamp(0.92rem,3.4vw,1rem);
-      flex: 1 1 46%;
+      flex: 1 1 48%;
       min-width: 120px;
+      align-items:center; /* center label and stepper horizontally */
     }
-    .settings input{
-      width:100%;
-      padding:10px;
+
+    /* Small input replaced with stepper (centered under label) */
+    .stepper {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:center;
+      margin-top:6px;
+    }
+    .stepper .btn {
+      width:44px;
+      height:44px;
+      min-width:44px;
+      border-radius:12px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      background:#fff;
+      box-shadow: 0 8px 20px rgba(34,33,42,0.06);
+      cursor:pointer;
+      font-weight:800;
+      color:var(--primary);
+      font-size:1.05rem;
+    }
+    .stepper .btn:active { transform: translateY(1px); }
+    .stepper .value {
+      width: var(--small-input-w);
+      max-width: var(--small-input-w);
+      min-width:40px;
+      padding:8px 6px;
       border-radius:10px;
       border:1px solid rgba(124,99,238,0.12);
       text-align:center;
-      background:#fff;
       font-weight:800;
       font-size: clamp(0.98rem,3.8vw,1.06rem);
+      background: linear-gradient(180deg,#fff,#fbfbff);
+      color: #1f1e29;
+    }
+    /* allow editing the value directly (numeric keyboard) */
+    .stepper input {
+      -moz-appearance: textfield;
+      appearance: none;
+      border: none;
+      background: transparent;
+      width:100%;
+      text-align:center;
+      font-weight:800;
+      font-size:inherit;
+      outline:none;
     }
 
     /* Start button — larger and prominent */
@@ -199,7 +242,7 @@
       cursor:pointer;
     }
 
-    /* Game UI: fill vertical space better */
+    /* Game UI */
     .game-card {
       width: min(96vw,440px);
       display:flex;
@@ -237,7 +280,7 @@
     .turn-label { font-weight:700; font-size:clamp(0.95rem,3.6vw,1.08rem); color:var(--muted); }
     .turn-name { font-weight:900; font-size:clamp(1.2rem,6.2vw,1.8rem); color:var(--primary); }
 
-    /* Timer — much larger for visibility */
+    /* Timer */
     #timer {
       font-variant-numeric:tabular-nums;
       font-weight:900;
@@ -280,7 +323,7 @@
       height: calc(var(--tap-min) + 2px);
     }
 
-    /* Modal: centred and unobtrusive */
+    /* Modal */
     .modal-bg {
       position: fixed; inset:0; display:none; align-items:center; justify-content:center;
       background: rgba(34,33,42,0.28); z-index:1200;
@@ -309,6 +352,8 @@
       .avatar{ width:56px; height:56px; font-size:1rem; }
       #timer{ font-size: clamp(1.6rem, 16vw, 3.4rem); padding:10px 18px; }
       .card { padding: 12px; }
+      .settings .field { flex: 1 1 100%; } /* stack on tiny devices */
+      .stepper .btn { width:40px; height:40px; min-width:40px; border-radius:10px; }
     }
   </style>
 </head>
@@ -329,11 +374,20 @@
       <div class="settings" aria-label="Ajustes">
         <div class="field">
           <label for="time">Tiempo (min)</label>
-          <input id="time" type="number" min="1" max="99" value="10" />
+          <div class="stepper" data-field="time">
+            <button class="btn minus" aria-label="Disminuir tiempo">−</button>
+            <div class="value"><input id="time" type="text" inputmode="numeric" pattern="\d{1,2}" value="10" maxlength="2" aria-label="Tiempo por jugador" /></div>
+            <button class="btn plus" aria-label="Aumentar tiempo">+</button>
+          </div>
         </div>
+
         <div class="field">
           <label for="penalty">Penalización (seg)</label>
-          <input id="penalty" type="number" min="1" max="99" value="10" />
+          <div class="stepper" data-field="penalty">
+            <button class="btn minus" aria-label="Disminuir penalización">−</button>
+            <div class="value"><input id="penalty" type="text" inputmode="numeric" pattern="\d{1,2}" value="10" maxlength="2" aria-label="Penalización en segundos" /></div>
+            <button class="btn plus" aria-label="Aumentar penalización">+</button>
+          </div>
         </div>
       </div>
 
@@ -398,6 +452,8 @@
     const endTurnBtn = document.getElementById('endTurnBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const endGameBtn = document.getElementById('endGameBtn');
+
+    // Stepper/input elements
     const timeInput = document.getElementById('time');
     const penaltyInput = document.getElementById('penalty');
 
@@ -441,7 +497,6 @@
       input.type = 'text';
       input.placeholder = `Jugador ${playersDiv.children.length + 1}`;
       playersDiv.appendChild(input);
-      // keep focus behavior natural
     }
     function removePlayerField(){
       if (playersDiv.children.length > 2){
@@ -476,8 +531,8 @@
     function beginGame(firstIndex, names){
       players = names;
       currentPlayer = firstIndex;
-      const minutes = Math.max(1, parseInt(timeInput.value) || 10);
-      penaltyTime = Math.max(1, parseInt(penaltyInput.value) || 10);
+      const minutes = Math.max(1, parseInt(cleanNumber(timeInput.value)) || 10);
+      penaltyTime = Math.max(1, parseInt(cleanNumber(penaltyInput.value)) || 10);
       timers = Array(players.length).fill(minutes * 60);
       reachedZero = Array(players.length).fill(false);
       paused = false;
@@ -535,6 +590,86 @@
       }
     }
 
+    // --- Stepper logic & input constraints ---
+    function cleanNumber(s) {
+      return String(s || '').replace(/[^\d]/g,'');
+    }
+
+    function clampNumber(n, min=1, max=99) {
+      n = Number(n);
+      if (Number.isNaN(n)) return min;
+      return Math.min(Math.max(n, min), max);
+    }
+
+    function setStepperValue(inputEl, value) {
+      const v = clampNumber(value, 1, 99);
+      inputEl.value = String(v);
+    }
+
+    function changeBy(inputEl, delta) {
+      let cur = Number(cleanNumber(inputEl.value) || 0);
+      if (!cur) cur = 0;
+      let next = cur + delta;
+      if (next < 1) next = 1;
+      if (next > 99) next = 99;
+      inputEl.value = String(next);
+      // visually update also (input is visible)
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // Attach handlers for each stepper area (plus/minus + direct input)
+    function initSteppers() {
+      document.querySelectorAll('.stepper').forEach(step => {
+        const minus = step.querySelector('.minus');
+        const plus = step.querySelector('.plus');
+        const input = step.querySelector('input');
+
+        minus.addEventListener('click', () => changeBy(input, -1));
+        plus.addEventListener('click', () => changeBy(input, +1));
+
+        // numeric keyboard + filter, limit to 2 digits and 1..99
+        input.addEventListener('input', (e) => {
+          let s = cleanNumber(input.value);
+          if (s.length > 2) s = s.slice(0,2);
+          if (s === '') {
+            input.value = '';
+            return;
+          }
+          if (Number(s) > 99) s = '99';
+          // avoid leading zeros
+          s = String(Number(s));
+          input.value = s;
+        });
+
+        input.addEventListener('blur', () => {
+          // on blur, ensure there's a valid number
+          if (cleanNumber(input.value) === '') {
+            setStepperValue(input, 1);
+          } else {
+            setStepperValue(input, clampNumber(input.value,1,99));
+          }
+        });
+
+        // prevent arrow keys changing page scroll etc., and allow arrow increments
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'ArrowUp') { ev.preventDefault(); changeBy(input, +1); }
+          if (ev.key === 'ArrowDown') { ev.preventDefault(); changeBy(input, -1); }
+        });
+
+        // sanitize paste
+        input.addEventListener('paste', (ev) => {
+          ev.preventDefault();
+          const text = (ev.clipboardData || window.clipboardData).getData('text') || '';
+          let s = cleanNumber(text).slice(0,2);
+          if (s === '') s = '1';
+          if (Number(s) > 99) s = '99';
+          input.value = s;
+          input.dispatchEvent(new Event('input'));
+        });
+
+      });
+    }
+
     // Modal: timer keeps running while modal shown
     function showEndGameModal(){
       modalBg.classList.add('active');
@@ -579,6 +714,9 @@
     addPlayerField();
     addPlayerField();
     showPanel('menu');
+    initSteppers();
+
+    // Prevent accidental drag selection on mobile
     document.addEventListener('touchstart', ()=>{}, {passive:true});
   </script>
 </body>
