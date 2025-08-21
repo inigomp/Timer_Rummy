@@ -34,10 +34,7 @@
       box-sizing: border-box;
     }
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      /* Cambiado: NO display flex aquí, solo en los paneles activos */
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -68,7 +65,7 @@
       flex-direction: column;
       align-items: center;
       gap: 14px;
-      margin: 12px 0;
+      margin: 12px auto;
       position: relative;
     }
     .player-inputs {
@@ -161,10 +158,19 @@
       transform: scale(1.018);
       color: var(--white);
     }
-    #selectFirst {
+    /* Oculta los paneles por defecto */
+    #menu, #selectFirst, #game {
       display: none;
-      flex-direction: column;
+      min-height: 100vh;
       align-items: center;
+      justify-content: center;
+    }
+    /* Solo el activo es visible y centrado con flex */
+    #menu.active, #selectFirst.active, #game.active {
+      display: flex;
+      flex-direction: column;
+    }
+    #selectFirst {
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -215,15 +221,6 @@
       color: var(--white);
       border-color: var(--secondary);
       transform: translateY(-2px) scale(1.03);
-    }
-    #game {
-      display: none;
-      margin-top: 30px;
-      width: 100vw;
-      min-height: 60vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
     .game-content {
       width: 97vw;
@@ -349,7 +346,7 @@
   </style>
 </head>
 <body>
-  <div id="menu" class="card">
+  <div id="menu" class="card active">
     <h1>Temporizador Rummy</h1>
     <div class="player-inputs" id="players"></div>
     <div class="controls">
@@ -385,7 +382,6 @@
   </div>
 
   <script>
-    // Elementos principales
     const playersDiv = document.getElementById("players");
     const addPlayerBtn = document.getElementById("addPlayer");
     const removePlayerBtn = document.getElementById("removePlayer");
@@ -402,7 +398,6 @@
     const penaltyInput = document.getElementById("penalty");
     const timeInput = document.getElementById("time");
 
-    // Estado del juego
     let players = [];
     let timers = [];
     let currentPlayer = 0;
@@ -411,7 +406,6 @@
     let penaltyTime = 10;
     let reachedZero = [];
 
-    // Fondo suave
     function setRandomBackground() {
       const gradients = [
         "linear-gradient(135deg, #f6effd 0%, #eaf6f3 100%)",
@@ -421,7 +415,6 @@
       document.body.style.background = gradients[Math.floor(Math.random() * gradients.length)];
     }
 
-    // Añadir/quitar campos de jugadores
     function addPlayerField() {
       if (playersDiv.children.length < 6) {
         const input = document.createElement("input");
@@ -436,14 +429,23 @@
       }
     }
 
-    // Recoge los nombres actuales de los inputs
     function getPlayerNames() {
       return Array.from(playersDiv.querySelectorAll("input")).map(
         (input, i) => input.value.trim() || `Jugador ${i+1}`
       );
     }
 
-    // Pantalla de selección de primer jugador
+    function showPanel(panelId) {
+      // Oculta todos los paneles
+      menu.classList.remove('active');
+      selectFirstDiv.classList.remove('active');
+      game.classList.remove('active');
+      // Muestra sólo el solicitado
+      if (panelId === 'menu') menu.classList.add('active');
+      if (panelId === 'selectFirst') selectFirstDiv.classList.add('active');
+      if (panelId === 'game') game.classList.add('active');
+    }
+
     function showFirstPlayerSelection(names) {
       firstPlayerBtnsDiv.innerHTML = "";
       names.forEach((name, i) => {
@@ -452,18 +454,15 @@
         btn.onclick = () => beginGame(i, names);
         firstPlayerBtnsDiv.appendChild(btn);
       });
-      menu.style.display = "none";
-      selectFirstDiv.style.display = "flex";
+      showPanel('selectFirst');
     }
 
-    // Selección de primer jugador
     function startGameSetup() {
       const names = getPlayerNames();
       if (names.length < 2) return alert("Debes tener al menos 2 jugadores");
       showFirstPlayerSelection(names);
     }
 
-    // Iniciar partida
     function beginGame(firstPlayerIndex, names) {
       players = names;
       currentPlayer = firstPlayerIndex;
@@ -471,16 +470,12 @@
       penaltyTime = parseInt(penaltyInput.value);
       timers = Array(players.length).fill(minutes * 60);
       reachedZero = Array(players.length).fill(false);
-
-      selectFirstDiv.style.display = "none";
-      game.style.display = "flex";
+      showPanel('game');
       updateTurn();
       startTimer();
     }
 
-    // Turnos
     function updateTurn() {
-      // Animar nombre al cambiar turno
       turnDiv.style.opacity = 0;
       setTimeout(() => {
         turnDiv.textContent = `Turno de ${players[currentPlayer]}`;
@@ -491,7 +486,6 @@
       }
     }
 
-    // Temporizador
     function startTimer() {
       clearInterval(interval);
       interval = setInterval(() => {
@@ -530,14 +524,11 @@
 
     function endGame() {
       clearInterval(interval);
-      menu.style.display = "flex";
-      game.style.display = "none";
-      selectFirstDiv.style.display = "none";
+      showPanel('menu');
       pauseBtn.textContent = "Pausa";
       paused = false;
     }
 
-    // Eventos
     addPlayerBtn.addEventListener("click", addPlayerField);
     removePlayerBtn.addEventListener("click", removePlayerField);
     startBtn.addEventListener("click", startGameSetup);
@@ -545,11 +536,10 @@
     pauseBtn.addEventListener("click", togglePause);
     endGameBtn.addEventListener("click", endGame);
 
-    // Inicializaciones
     setRandomBackground();
     addPlayerField();
     addPlayerField();
-    menu.style.display = "flex";
+    showPanel('menu');
   </script>
 </body>
 </html>
