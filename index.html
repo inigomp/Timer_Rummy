@@ -5,117 +5,352 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Temporizador Rummy</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --primary: #a593e0;
+      --secondary: #6bbba1;
+      --bg: #f7f7fb;
+      --surface: #f0eef6;
+      --accent: #f5e8c7;
+      --text: #36354a;
+      --text-dim: #8c8fa3;
+      --danger: #e57373;
+      --shadow: 0 8px 32px 0 rgba(123, 118, 191, 0.10);
+      --radius: 18px;
+      --white: #fff;
+      --timer-bg: #fff;
+      --timer-text: #312e4e;
+      --timer-shadow: 0 4px 24px 0 rgba(49,46,78,0.09);
+    }
+    html, body {
+      padding: 0;
       margin: 0;
-      font-family: Arial, sans-serif;
-      color: white;
-      text-align: center;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+    }
+    body {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      transition: background 1s ease;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
     h1 {
-      font-size: 2.2em;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+      font-size: 2.5em;
+      font-weight: 900;
+      margin-bottom: 26px;
+      letter-spacing: -2px;
+      text-align: center;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      text-shadow: 0 2px 32px rgba(123,118,191,0.07);
+      transition: color 0.2s;
+      width: 100%;
     }
-    .player-inputs {
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 30px 32px 30px;
+      min-width: 320px;
+      width: 96vw;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 90%;
-      max-width: 400px;
+      align-items: center;
+      gap: 14px;
+      margin: 12px 0;
+      position: relative;
+    }
+    .player-inputs {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
     }
     .player-inputs input {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--primary);
+      font-size: 1.08em;
+      background: var(--white);
+      color: var(--text);
+      outline: none;
+      transition: border 0.2s, background 0.17s;
       text-align: center;
-      background-color: rgba(255,255,255,0.9);
-      color: #333;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .player-inputs input:focus {
+      border: 2px solid var(--secondary);
+      background: #ede9f6;
     }
     .controls {
       display: flex;
       gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
-    button {
-      padding: 12px 20px;
-      font-size: 1.2em;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    }
-    .small-btn {
-      padding: 8px 14px;
+    .controls button {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-weight: 700;
       font-size: 1em;
-      border-radius: 10px;
+      letter-spacing: 0.2px;
+      transition: background 0.2s, color 0.2s, border 0.2s, transform 0.1s;
+      cursor: pointer;
     }
-    #game {
-      display: none;
-    }
-    #timer {
-      font-size: 4em;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-    }
-    #turn {
-      font-size: 1.5em;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-    }
-    #endTurnBtn {
-      background-color: #4CAF50;
-      color: white;
-      padding: 14px 24px;
-      font-size: 1.2em;
-      border-radius: 12px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    }
-    #pauseBtn {
-      background-color: #f39c12;
-      color: white;
-      padding: 14px 24px;
-      font-size: 1.2em;
-      border-radius: 12px;
-      margin-left: 10px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    }
-    #endGameBtn {
-      background-color: #e74c3c;
-      color: white;
-      padding: 14px 24px;
-      font-size: 1.2em;
-      border-radius: 12px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    .controls button:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--secondary);
+      transform: translateY(-2px) scale(1.05);
     }
     .time-settings {
-      margin-top: 15px;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+      margin: 10px 0 5px 0;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 1.02em;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
     }
     .time-settings input {
       margin-left: 10px;
-      width: 60px;
+      width: 62px;
       text-align: center;
+      border-radius: 8px;
+      border: 1.2px solid var(--primary);
+      padding: 7px;
+      font-size: 1.03em;
+      background: var(--white);
+      color: var(--text);
+      font-weight: 700;
+    }
+    #startBtn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: var(--white);
+      font-weight: 800;
+      font-size: 1.3em;
+      border-radius: 13px;
+      border: none;
+      padding: 15px 0;
+      width: 100%;
+      margin-top: 15px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.17s, transform 0.14s;
+      box-shadow: 0 2px 8px rgba(127,90,240,0.06);
+    }
+    #startBtn:hover {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      transform: scale(1.018);
+      color: var(--white);
+    }
+    #selectFirst {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 38px 30px 30px 30px;
+      margin-top: 20px;
+      min-width: 290px;
+      max-width: 350px;
+      animation: pop 0.55s cubic-bezier(.42,1.6,.46,.98);
+    }
+    @keyframes pop {
+      from { transform:scale(0.7) translateY(60px); opacity:0; }
+      to   { transform:scale(1)   translateY(0);    opacity:1; }
+    }
+    #selectFirst label {
+      font-size: 1.2em;
+      font-weight: 800;
+      margin-bottom: 18px;
+      color: var(--primary);
+      letter-spacing: 0.7px;
+      text-align: center;
+      width: 100%;
+      display: block;
+    }
+    .first-player-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 5px;
+      width: 100%;
+      align-items: center;
+    }
+    .first-player-btns button {
+      background: linear-gradient(90deg, #ede9f6, #e3f2ef);
+      color: var(--text);
+      font-size: 1.15em;
+      padding: 15px 0;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      font-weight: 700;
+      width: 100%;
+      box-shadow: 0 1px 8px rgba(127,90,240,0.05);
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: background 0.18s, color 0.18s, border 0.18s, transform 0.13s;
+    }
+    .first-player-btns button:hover, .first-player-btns button:focus {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: var(--white);
+      border-color: var(--secondary);
+      transform: translateY(-2px) scale(1.03);
+    }
+    #game {
+      display: none;
+      margin-top: 30px;
+      width: 100vw;
+      min-height: 60vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .game-content {
+      width: 97vw;
+      max-width: 420px;
+      min-width: 310px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 38px 30px 32px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      animation: pop 0.42s cubic-bezier(.42,1.6,.46,.98);
+      position: relative;
+    }
+    #turn {
+      font-size: 2.4em;
+      font-weight: 900;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+      color: var(--primary);
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      text-shadow: 0 2px 24px rgba(123,118,191,0.10);
+      transition: color 0.2s;
+      text-align: center;
+      padding: 9px 0;
+      border-radius: 12px;
+      background-size: 200% 200%;
+      animation: shineMove 4s linear infinite;
+    }
+    @keyframes shineMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    #timer {
+      display: inline-block;
+      font-size: 4.6em;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--timer-text);
+      background: var(--timer-bg);
+      border-radius: 18px;
+      box-shadow: var(--timer-shadow);
+      padding: 28px 38px 25px 38px;
+      margin-bottom: 28px;
+      margin-top: 1px;
+      transition: color 0.15s, background 0.15s;
+      text-align: center;
+      width: auto;
+      min-width: 220px;
+      border: 2px solid #ece9f6;
+      outline: 3px solid #ece9f600;
+      outline-offset: 6px;
+      user-select: none;
+      font-variant-numeric: tabular-nums;
+    }
+    .game-btns {
+      display: flex;
+      gap: 11px;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    .game-btns button,
+    #endGameBtn {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.18em;
+      border-radius: 10px;
+      border: none;
+      padding: 14px 0;
+      flex: 1 1 0;
+      transition: background 0.16s, color 0.13s, transform 0.13s;
+      box-shadow: 0 2px 8px rgba(127,90,240,0.05);
+      cursor: pointer;
+      letter-spacing: 0.7px;
+      background: linear-gradient(90deg, var(--primary) 50%, var(--secondary) 100%);
+    }
+    #endTurnBtn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: var(--white);
+    }
+    #endTurnBtn:hover {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      color: var(--white);
+    }
+    #pauseBtn {
+      background: var(--accent);
+      color: var(--text);
+      font-weight: 900;
+    }
+    #pauseBtn:hover {
+      background: var(--secondary);
+      color: var(--white);
+    }
+    #endGameBtn {
+      background: var(--danger);
+      color: var(--white);
+      margin-top: 20px;
+      width: 100%;
+      font-size: 1.11em;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+    }
+    #endGameBtn:hover {
+      background: #cf6f6f;
+    }
+    @media (max-width: 500px) {
+      .card, .game-content, #selectFirst {
+        min-width: unset;
+        max-width: 99vw;
+        padding: 18vw 2vw 12vw 2vw;
+      }
+      h1 { font-size: 2em; }
+      #turn { font-size: 1.2em; }
+      #timer { font-size: 2.2em; min-width: 115px; padding: 10vw 2vw 9vw 2vw; }
     }
   </style>
 </head>
 <body>
-  <div id="menu">
-    <h1>⏱️ Temporizador Rummy</h1>
+  <div id="menu" class="card">
+    <h1>Temporizador Rummy</h1>
     <div class="player-inputs" id="players"></div>
     <div class="controls">
       <button id="addPlayer" class="small-btn">➕ Añadir</button>
@@ -126,43 +361,67 @@
       <input type="number" id="time" value="10" min="1" max="99">
     </div>
     <div class="time-settings">
-      <label for="penalty">Tiempo penalización (seg): </label>
+      <label for="penalty">Penalización (seg): </label>
       <input type="number" id="penalty" value="10" min="1" max="99">
     </div>
     <button id="startBtn">Comenzar</button>
   </div>
 
+  <div id="selectFirst">
+    <label>¿Quién comienza?</label>
+    <div class="first-player-btns" id="firstPlayerBtns"></div>
+  </div>
+
   <div id="game">
-    <div id="turn"></div>
-    <div id="timer"></div>
-    <button id="endTurnBtn">Fin de turno</button>
-    <button id="pauseBtn">Pausa</button>
-    <br><br>
-    <button id="endGameBtn">Fin de partida</button>
+    <div class="game-content">
+      <div id="turn"></div>
+      <div id="timer"></div>
+      <div class="game-btns">
+        <button id="endTurnBtn">Fin de turno</button>
+        <button id="pauseBtn">Pausa</button>
+      </div>
+      <button id="endGameBtn">Fin de partida</button>
+    </div>
   </div>
 
   <script>
+    // Elementos principales
     const playersDiv = document.getElementById("players");
     const addPlayerBtn = document.getElementById("addPlayer");
     const removePlayerBtn = document.getElementById("removePlayer");
     const startBtn = document.getElementById("startBtn");
     const menu = document.getElementById("menu");
     const game = document.getElementById("game");
+    const selectFirstDiv = document.getElementById("selectFirst");
+    const firstPlayerBtnsDiv = document.getElementById("firstPlayerBtns");
     const turnDiv = document.getElementById("turn");
     const timerDiv = document.getElementById("timer");
     const endTurnBtn = document.getElementById("endTurnBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const endGameBtn = document.getElementById("endGameBtn");
     const penaltyInput = document.getElementById("penalty");
+    const timeInput = document.getElementById("time");
 
+    // Estado del juego
     let players = [];
     let timers = [];
     let currentPlayer = 0;
-    let interval;
+    let interval = null;
     let paused = false;
     let penaltyTime = 10;
     let reachedZero = [];
 
+    // Fondo suave
+    function setRandomBackground() {
+      const gradients = [
+        "linear-gradient(135deg, #f6effd 0%, #eaf6f3 100%)",
+        "linear-gradient(135deg, #f7f7fb 0%, #e9eafc 100%)",
+        "linear-gradient(135deg, #f7f7fb 0%, #e6f6ee 100%)"
+      ];
+      document.body.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+    }
+
+    // Añadir/quitar campos de jugadores
     function addPlayerField() {
       if (playersDiv.children.length < 6) {
         const input = document.createElement("input");
@@ -171,40 +430,68 @@
         playersDiv.appendChild(input);
       }
     }
-
     function removePlayerField() {
       if (playersDiv.children.length > 2) {
         playersDiv.removeChild(playersDiv.lastChild);
       }
     }
 
-    addPlayerBtn.addEventListener("click", addPlayerField);
-    removePlayerBtn.addEventListener("click", removePlayerField);
+    // Recoge los nombres actuales de los inputs
+    function getPlayerNames() {
+      return Array.from(playersDiv.querySelectorAll("input")).map(
+        (input, i) => input.value.trim() || `Jugador ${i+1}`
+      );
+    }
 
-    function startGame() {
-      const inputs = playersDiv.querySelectorAll("input");
-      players = Array.from(inputs).map(input => input.value || `Jugador ${Math.floor(Math.random()*1000)}`);
-      if (players.length < 2) return alert("Debes tener al menos 2 jugadores");
+    // Pantalla de selección de primer jugador
+    function showFirstPlayerSelection(names) {
+      firstPlayerBtnsDiv.innerHTML = "";
+      names.forEach((name, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = name;
+        btn.onclick = () => beginGame(i, names);
+        firstPlayerBtnsDiv.appendChild(btn);
+      });
+      menu.style.display = "none";
+      selectFirstDiv.style.display = "flex";
+    }
 
-      const minutes = parseInt(document.getElementById("time").value);
+    // Selección de primer jugador
+    function startGameSetup() {
+      const names = getPlayerNames();
+      if (names.length < 2) return alert("Debes tener al menos 2 jugadores");
+      showFirstPlayerSelection(names);
+    }
+
+    // Iniciar partida
+    function beginGame(firstPlayerIndex, names) {
+      players = names;
+      currentPlayer = firstPlayerIndex;
+      const minutes = parseInt(timeInput.value);
       penaltyTime = parseInt(penaltyInput.value);
       timers = Array(players.length).fill(minutes * 60);
       reachedZero = Array(players.length).fill(false);
 
-      currentPlayer = 0; // Siempre empieza el primer jugador
-      menu.style.display = "none";
-      game.style.display = "block";
+      selectFirstDiv.style.display = "none";
+      game.style.display = "flex";
       updateTurn();
       startTimer();
     }
 
+    // Turnos
     function updateTurn() {
-      turnDiv.textContent = `Turno de: ${players[currentPlayer]}`;
+      // Animar nombre al cambiar turno
+      turnDiv.style.opacity = 0;
+      setTimeout(() => {
+        turnDiv.textContent = `Turno de ${players[currentPlayer]}`;
+        turnDiv.style.opacity = 1;
+      }, 160);
       if (reachedZero[currentPlayer]) {
         timers[currentPlayer] = penaltyTime;
       }
     }
 
+    // Temporizador
     function startTimer() {
       clearInterval(interval);
       interval = setInterval(() => {
@@ -237,38 +524,32 @@
     function togglePause() {
       paused = !paused;
       pauseBtn.textContent = paused ? 'Reanudar' : 'Pausa';
+      pauseBtn.style.background = paused ? "var(--primary)" : "var(--accent)";
+      pauseBtn.style.color = paused ? "var(--white)" : "var(--text)";
     }
 
     function endGame() {
       clearInterval(interval);
-      menu.style.display = "block";
+      menu.style.display = "flex";
       game.style.display = "none";
+      selectFirstDiv.style.display = "none";
+      pauseBtn.textContent = "Pausa";
+      paused = false;
     }
 
-    startBtn.addEventListener("click", startGame);
+    // Eventos
+    addPlayerBtn.addEventListener("click", addPlayerField);
+    removePlayerBtn.addEventListener("click", removePlayerField);
+    startBtn.addEventListener("click", startGameSetup);
     endTurnBtn.addEventListener("click", endTurn);
     pauseBtn.addEventListener("click", togglePause);
     endGameBtn.addEventListener("click", endGame);
 
-    // Gradientes hermosos
-    const gradients = [
-      "linear-gradient(135deg, #667eea, #764ba2)",
-      "linear-gradient(135deg, #ff9a9e, #fad0c4)",
-      "linear-gradient(135deg, #a1c4fd, #c2e9fb)",
-      "linear-gradient(135deg, #fbc2eb, #a6c1ee)",
-      "linear-gradient(135deg, #ffecd2, #fcb69f)",
-      "linear-gradient(135deg, #89f7fe, #66a6ff)",
-      "linear-gradient(135deg, #fddb92, #d1fdff)",
-      "linear-gradient(135deg, #e0c3fc, #8ec5fc)"
-    ];
-    document.body.style.background = gradients[Math.floor(Math.random() * gradients.length)];
-
-    // Inicializar con 2 jugadores
+    // Inicializaciones
+    setRandomBackground();
     addPlayerField();
     addPlayerField();
+    menu.style.display = "flex";
   </script>
 </body>
 </html>
-
-
-
