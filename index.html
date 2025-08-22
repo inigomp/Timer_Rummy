@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Temporizador Rummy — Restaurado v18 + Turno grande (con sonidos y penalización asegurada)</title>
+  <title>Temporizador Rummy — Restaurado v18 + Turno grande (con sonidos y paleta dinámica)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -252,6 +252,7 @@
       height: calc(100% - 6px);
       border-radius:18px;
       border:none;
+      /* default gradient (will be overridden by JS per player) */
       background: linear-gradient(180deg, var(--primary), #5a47c9);
       color: #fff;
       box-shadow: 0 24px 70px rgba(92,61,224,0.12);
@@ -265,6 +266,7 @@
       touch-action: manipulation;
       user-select:none;
       padding: 18px;
+      transition: background 360ms ease, box-shadow 360ms ease, transform 120ms ease;
     }
     .big-turn-btn:active { transform: translateY(1px); }
 
@@ -481,7 +483,7 @@
   </div>
 
   <script>
-    // ---------- JS largely restored from v18, with sounds re-added and prepareTurnTimer ----------
+    // ---------- JS largely restored from v18, with sounds re-added, prepareTurnTimer and dynamic palette ----------
     // Element references
     const playersDiv = document.getElementById('players');
     const addPlayerBtn = document.getElementById('addPlayer');
@@ -517,6 +519,16 @@
     // Audio state
     let audioCtx = null;
     let alarmPlaying = false;
+
+    // Palette list for big-turn button (each entry: [colorA, colorB])
+    const BUTTON_PALETTES = [
+      ['#7c63e6','#5fc3a6'],   // original purple -> green
+      ['#ff7a7a','#ffb86b'],   // warm red -> orange
+      ['#6ec1ff','#6b8cff'],   // light blue -> indigo
+      ['#a28bff','#5fc3a6'],   // lilac -> mint
+      ['#ff9fe7','#7c63e6'],   // pink -> purple
+      ['#66d2a5','#4fb5ff']    // mint -> sky
+    ];
 
     // Audio helpers (reintroduced)
     function ensureAudioContext() {
@@ -661,7 +673,6 @@
 
     // Prepare turn timer: if player had timed out (reachedZero) they always start with penaltyTime.
     function prepareTurnTimer(index) {
-      // If they previously reached zero, every time their turn starts they get penaltyTime (seconds)
       if (!timers[index] || timers[index] <= 0) {
         const minutes = Math.max(1, parseInt(cleanNumber(timeInput.value)) || 10);
         timers[index] = minutes * 60;
@@ -669,6 +680,28 @@
       if (reachedZero[index]) {
         timers[index] = Number(penaltyTime) || Math.max(1, parseInt(cleanNumber(penaltyInput.value)) || 10);
       }
+    }
+
+    // Apply palette to big-turn button based on player index
+    function hexToRgba(hex, alpha = 1) {
+      // accept shorthand #abc and full #aabbcc
+      const h = hex.replace('#','');
+      const r = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('').slice(0,2) : h.slice(0,2), 16);
+      const g = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('').slice(2,4) : h.slice(2,4), 16);
+      const b = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('').slice(4,6) : h.slice(4,6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function applyButtonPalette(index) {
+      if (!bigTurnBtn) return;
+      // pick palette by index, fallback to first
+      const p = BUTTON_PALETTES[index % BUTTON_PALETTES.length] || BUTTON_PALETTES[0];
+      const colorA = p[0];
+      const colorB = p[1] || p[0];
+      // Apply gradient background
+      bigTurnBtn.style.background = `linear-gradient(180deg, ${colorA}, ${colorB})`;
+      // Compute subtle colored shadow from primary color
+      bigTurnBtn.style.boxShadow = `0 24px 70px ${hexToRgba(colorA,0.12)}`;
     }
 
     // Game lifecycle (v18 logic, adapted so alarm plays before passing on zero)
@@ -691,6 +724,8 @@
     function updateBigButton(){
       const name = players[currentPlayer] || ('Jugador ' + (currentPlayer+1));
       bigPlayerName.textContent = name;
+      // set button colors according to current player
+      applyButtonPalette(currentPlayer);
       renderTime();
     }
 
